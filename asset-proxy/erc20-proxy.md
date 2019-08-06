@@ -21,9 +21,11 @@ function transferFrom(
     external;
 ```
 
+The call will be reverted if the owner has insufficient balance or if the `ERC20Proxy` does not have sufficient allowance to perform the transfer.
+
 ## Encoding assetData
 
-This contract expects ERC20 `assetData` to be encoded using [ABIv2](http://solidity.readthedocs.io/en/latest/abi-spec.html) with the following function signature. The id of this contract is `0xf47261b0`, which can be calculated as the [4 byte function selector](https://solidity.readthedocs.io/en/latest/abi-spec.html#function-selector) of the same signature.
+This contract expects ERC20 [`assetData`](v3/v3-specification.md#assetdata) to be encoded using [ABIv2](http://solidity.readthedocs.io/en/latest/abi-spec.html) with the following function signature. The id of this contract is `0xf47261b0`, which can be calculated as the [4 byte function selector](https://solidity.readthedocs.io/en/latest/abi-spec.html#function-selector) of the same signature.
 
 ```solidity
 /// @dev Function signature for encoding ERC20 assetData.
@@ -41,9 +43,7 @@ bytes memory data = abi.encodeWithSelector(
 );
 ```
 
-NOTE: The `ERC20Proxy` does not enforce strict length checks for [`assetData`](#assetdata), which means that extra data may be appended to this field with any arbitrary encoding. Any extra data will be ignored by the `ERC20Proxy` but may be used in external contracts interacting with the [`Exchange`](#exchange) contract. Relayers that do not desire this behavior should validate the length of all [`assetData`](#assetdata) fields contained in [orders](#orders) before acceptance.
-
-The `ERC20Proxy` performs the transfer by calling the token's `transferFrom` method. The transaction will be reverted if the owner has insufficient balance or if the `ERC20Proxy` does not have sufficient allowance to perform the transfer.
+NOTE: The `ERC20Proxy` does not enforce strict length checks for [`assetData`](v3/v3-specification.md#assetdata), which means that extra data may be appended to this field with any arbitrary encoding. Any extra data will be ignored by the `ERC20Proxy` but may be used in external contracts interacting with the [`Exchange`](v3/v3-specification.md#exchange) contract. Relayers that do not desire this behavior should validate the length of all [`assetData`](v3/v3-specification.md#assetdata) fields contained in [orders](v3/v3-specification.md#orders) before acceptance.
 
 ## Authorizations
 
