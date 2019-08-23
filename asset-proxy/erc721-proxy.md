@@ -21,7 +21,13 @@ function transferFrom(
     external;
 ```
 
-The call will be reverted if the owner has insufficient balance or if the `ERC721Proxy` is not approved to perform the transfer.
+The `transferFrom` method may revert with the following errors:
+
+| Error                                      | Condition                                                                                    |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------- |
+| [StandardError("SENDER_NOT_AUTHORIZED")]() | `msg.sender` has not been authorized                                                         |
+| [StandardError("INVALID_AMOUNT")]()        | The `amount` does not equal 1                                                                |
+| [StandardError("TRANSFER_FAILED")]()       | The `ERC721.transferFrom` call failed for any reason (likely insufficient balance/allowance) |
 
 ## Encoding assetData
 

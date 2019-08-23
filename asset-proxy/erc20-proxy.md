@@ -4,6 +4,8 @@
 
 The `ERC20Proxy` is responsible for transferring [ERC20 tokens](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md). Users must first approve this contract by calling the `approve` method on the token that will be exchanged. It is recommended that users approve a value of 2^256 -1. This minimizes the amount of times `approve` must be called, and also [increases efficiency](https://github.com/ethereum/EIPs/issues/717) for many ERC20 tokens.
 
+### transferFrom
+
 This contract may transfer an ERC20 token if its `transferFrom` method is called from an authorized address.
 
 ```solidity
@@ -21,7 +23,12 @@ function transferFrom(
     external;
 ```
 
-The call will be reverted if the owner has insufficient balance or if the `ERC20Proxy` does not have sufficient allowance to perform the transfer.
+The `transferFrom` method may revert with the following errors:
+
+| Error                                      | Condition                                                                                        |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------ |
+| [StandardError("SENDER_NOT_AUTHORIZED")]() | `msg.sender` has not been authorized                                                             |
+| [StandardError("TRANSFER_FAILED")]()       | The `ERC20Token.transferFrom` call failed for any reason (likely insufficient balance/allowance) |
 
 ## Encoding assetData
 

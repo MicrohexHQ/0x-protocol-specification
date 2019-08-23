@@ -25,7 +25,18 @@ function transferFrom(
     external;
 ```
 
-TODO: Revert table
+The `transferFrom` method may revert with the following errors:
+
+| Error                                               | Condition                                                                                                 |
+| --------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| [StandardError("SENDER_NOT_AUTHORIZED")]()          | `msg.sender` has not been authorized                                                                      |
+| [StandardError("INVALID_ASSET_DATA_LENGTH")]()      | The `assetData` is shorter than 68 bytes or is not a multiple of 32 (exluding the 4 byte id)              |
+| [StandardError("INVALID_ASSET_DATA_END")]()         | The offset to `assetData` points to outside the end of calldata                                           |
+| [StandardError("LENGTH_MISMATCH")]()                | The length of the `assetData.amounts` and `assetData.nestedAssetData` are not equal                       |
+| [StandardError("UINT256_OVERFLOW)]()                | The multiplication of an element of `assetData.amounts` and `amount` resulted in an overflow              |
+| [StandardError("LENGTH_GREATER_THAN_3_REQUIRED")]() | An element of `assetData.nestedAssetData` is shorter than 4 bytes                                         |
+| [StandardError("ASSET_PROXY_DOES_NOT_EXIST")]()     | No `AssetProxy` contract exists for the given id of an element of `assetData.nestedAssetData`             |
+| [StandardError(\*)]()                               | This contract will rethrow any revert data received from an unsuccessful call of an `AssetProxy` contract |
 
 ## Encoding assetData
 
