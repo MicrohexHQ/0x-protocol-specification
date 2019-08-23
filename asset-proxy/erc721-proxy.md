@@ -23,15 +23,15 @@ function transferFrom(
 
 The `transferFrom` method may revert with the following errors:
 
-| Error                                      | Condition                                                                                    |
-| ------------------------------------------ | -------------------------------------------------------------------------------------------- |
-| [StandardError("SENDER_NOT_AUTHORIZED")]() | `msg.sender` has not been authorized                                                         |
-| [StandardError("INVALID_AMOUNT")]()        | The `amount` does not equal 1                                                                |
-| [StandardError("TRANSFER_FAILED")]()       | The `ERC721.transferFrom` call failed for any reason (likely insufficient balance/allowance) |
+| Error                                                                              | Condition                                                                                    |
+| ---------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| [StandardError("SENDER_NOT_AUTHORIZED")](../v3/v3-specification.md#standard-error) | `msg.sender` has not been authorized                                                         |
+| [StandardError("INVALID_AMOUNT")](../v3/v3-specification.md#standard-error)        | The `amount` does not equal 1                                                                |
+| [StandardError("TRANSFER_FAILED")](../v3/v3-specification.md#standard-error)       | The `ERC721.transferFrom` call failed for any reason (likely insufficient balance/allowance) |
 
 ## Encoding assetData
 
-This contract expects ERC721 [`assetData`](v3/v3-specification.md#assetdata) to be encoded using [ABIv2](http://solidity.readthedocs.io/en/latest/abi-spec.html) with the following function signature. The id of this contract is `0x02571792`, which can be calculated as the [4 byte function selector](https://solidity.readthedocs.io/en/latest/abi-spec.html#function-selector) of the same signature.
+This contract expects ERC721 [`assetData`](../v3/v3-specification.md#assetdata) to be encoded using [ABIv2](http://solidity.readthedocs.io/en/latest/abi-spec.html) with the following function signature. The id of this contract is `0x02571792`, which can be calculated as the [4 byte function selector](https://solidity.readthedocs.io/en/latest/abi-spec.html#function-selector) of the same signature.
 
 ```solidity
 /// @dev Function signature for encoding ERC721 assetData.
@@ -54,7 +54,7 @@ bytes memory data = abi.encodeWithSelector(
 );
 ```
 
-NOTE: The `ERC721Proxy` does not enforce strict length checks for [`assetData`](v3/v3-specification.md#assetdata), which means that extra data may be appended to this field with any arbitrary encoding. Any extra data will be ignored by the `ERC721Proxy` but may be used in external contracts interacting with the [`Exchange`](v3/v3-specification.md#exchange) contract. Relayers that do not desire this behavior should validate the length of all [`assetData`](v3/v3-specification.md#assetdata) fields contained in [orders](v3/v3-specification.md#orders) before acceptance.
+NOTE: The `ERC721Proxy` does not enforce strict length checks for `assetData`, which means that extra data may be appended to this field with any arbitrary encoding. Any extra data will be ignored by the `ERC721Proxy` but may be used in external contracts interacting with the [`Exchange`](../v3/v3-specification.md#exchange) contract. Relayers that do not desire this behavior should validate the length of all `assetData` fields contained in [orders](../v3/v3-specification.md#orders) before acceptance.
 
 ## Authorizations
 
@@ -93,6 +93,6 @@ contract IAuthorizable {
 
 The contracts that are currently authorized to call the `ERC20Proxy` contract's `transferFrom` method are:
 
-- [Exchange 2.0](v2/v2-specification.md#exchange)
-- [Exchange 3.0](v3/v3-specification.md#exchange)
-- [MultiAssetProxy](asset-proxy/multi-asset-proxy.md)
+- [Exchange 2.0](../v2/v2-specification.md#exchange)
+- [Exchange 3.0](../v3/v3-specification.md#exchange)
+- [MultiAssetProxy](../asset-proxy/multi-asset-proxy.md)

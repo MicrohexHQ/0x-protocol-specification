@@ -6,9 +6,9 @@ The `MultiAssetProxy` was first proposed in [ZEIP-23](https://github.com/0xProje
 
 ## Transferring multiple assets
 
-The `MultiAssetProxy` expects an `amounts` (`uint256` array) and a `nestedAssetData` (array of [`asseData`](v3/v3-specification.md#assetdata) byte arrays) to be encoded within its own `assetData`. Each element of `amounts` corresponds to an element at the same index of `nestedAssetData`. The `MultiAssetProxy` will multiply each `amounts` element by the `amount` passed into `MultiAssetProxy.transferFrom` and then dispatch the corresponding element of `nestedAssetProxy` to the relevant [`AssetProxy`](v3/v3-specification.md#assetproxy) contract with the resulting `totalAmount`. This contract does not perform any `transferFrom` calls to assets directly and therefore does not require any additional user approvals.
+The `MultiAssetProxy` expects an `amounts` (`uint256` array) and a `nestedAssetData` (array of [`asseData`](../v3/v3-specification.md#assetdata) byte arrays) to be encoded within its own `assetData`. Each element of `amounts` corresponds to an element at the same index of `nestedAssetData`. The `MultiAssetProxy` will multiply each `amounts` element by the `amount` passed into `MultiAssetProxy.transferFrom` and then dispatch the corresponding element of `nestedAssetProxy` to the relevant [`AssetProxy`](v3/v3-specification.md#assetproxy) contract with the resulting `totalAmount`. This contract does not perform any `transferFrom` calls to assets directly and therefore does not require any additional user approvals.
 
-This contract may dispatch transfers to other [`AssetProxy`](v3/v3-specification.md#assetproxy) contracts if its `transferFrom` method is called from an authorized address.
+This contract may dispatch transfers to other [`AssetProxy`](../v3/v3-specification.md#assetproxy) contracts if its `transferFrom` method is called from an authorized address.
 
 ```solidity
 /// @dev Transfers assets. Either succeeds or throws.
@@ -27,20 +27,20 @@ function transferFrom(
 
 The `transferFrom` method may revert with the following errors:
 
-| Error                                               | Condition                                                                                                 |
-| --------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| [StandardError("SENDER_NOT_AUTHORIZED")]()          | `msg.sender` has not been authorized                                                                      |
-| [StandardError("INVALID_ASSET_DATA_LENGTH")]()      | The `assetData` is shorter than 68 bytes or is not a multiple of 32 (exluding the 4 byte id)              |
-| [StandardError("INVALID_ASSET_DATA_END")]()         | The offset to `assetData` points to outside the end of calldata                                           |
-| [StandardError("LENGTH_MISMATCH")]()                | The length of the `assetData.amounts` and `assetData.nestedAssetData` are not equal                       |
-| [StandardError("UINT256_OVERFLOW)]()                | The multiplication of an element of `assetData.amounts` and `amount` resulted in an overflow              |
-| [StandardError("LENGTH_GREATER_THAN_3_REQUIRED")]() | An element of `assetData.nestedAssetData` is shorter than 4 bytes                                         |
-| [StandardError("ASSET_PROXY_DOES_NOT_EXIST")]()     | No `AssetProxy` contract exists for the given id of an element of `assetData.nestedAssetData`             |
-| [StandardError(\*)]()                               | This contract will rethrow any revert data received from an unsuccessful call of an `AssetProxy` contract |
+| Error                                                                                       | Condition                                                                                                 |
+| ------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| [StandardError("SENDER_NOT_AUTHORIZED")](../v3/v3-specification.md#standard-error)          | `msg.sender` has not been authorized                                                                      |
+| [StandardError("INVALID_ASSET_DATA_LENGTH")](../v3/v3-specification.md#standard-error)      | The `assetData` is shorter than 68 bytes or is not a multiple of 32 (exluding the 4 byte id)              |
+| [StandardError("INVALID_ASSET_DATA_END")](../v3/v3-specification.md#standard-error)         | The offset to `assetData` points to outside the end of calldata                                           |
+| [StandardError("LENGTH_MISMATCH")](../v3/v3-specification.md#standard-error)                | The length of the `assetData.amounts` and `assetData.nestedAssetData` are not equal                       |
+| [StandardError("UINT256_OVERFLOW)](../v3/v3-specification.md#standard-error)                | The multiplication of an element of `assetData.amounts` and `amount` resulted in an overflow              |
+| [StandardError("LENGTH_GREATER_THAN_3_REQUIRED")](../v3/v3-specification.md#standard-error) | An element of `assetData.nestedAssetData` is shorter than 4 bytes                                         |
+| [StandardError("ASSET_PROXY_DOES_NOT_EXIST")](../v3/v3-specification.md#standard-error)     | No `AssetProxy` contract exists for the given id of an element of `assetData.nestedAssetData`             |
+| [StandardError(\*)](../v3/v3-specification.md#standard-error)                               | This contract will rethrow any revert data received from an unsuccessful call of an `AssetProxy` contract |
 
 ## Encoding assetData
 
-This contract expects MultiAsset [`assetData`](v3/v3-specification.md#assetdata) to be encoded using [ABIv2](http://solidity.readthedocs.io/en/latest/abi-spec.html) with the following function signature. The id of this contract is `0x94cfcdd7`, which can be calculated as the [4 byte function selector](https://solidity.readthedocs.io/en/latest/abi-spec.html#function-selector) of the same signature.
+This contract expects MultiAsset [`assetData`](../v3/v3-specification.md#assetdata) to be encoded using [ABIv2](http://solidity.readthedocs.io/en/latest/abi-spec.html) with the following function signature. The id of this contract is `0x94cfcdd7`, which can be calculated as the [4 byte function selector](https://solidity.readthedocs.io/en/latest/abi-spec.html#function-selector) of the same signature.
 
 ```solidity
 /// @dev Function signature for encoding MultiAsset assetData.
@@ -68,7 +68,7 @@ Each element of `nestedAssetData` must be encoded according to the specification
 
 ## Authorizations
 
-The `MultiAssetProxy` has the following interface for managing which addresses are allowed to call this contract's `transferFrom` method. These authorization functions can only be called by the contract's `owner` (currently, the [`AssetProxyOwner`](v3/v3-specification.md#assetproxyowner) contract).
+The `MultiAssetProxy` has the following interface for managing which addresses are allowed to call this contract's `transferFrom` method. These authorization functions can only be called by the contract's `owner` (currently, the [`AssetProxyOwner`](../v3/v3-specification.md#assetproxyowner) contract).
 
 ```solidity
 contract IAuthorizable {
@@ -101,14 +101,14 @@ contract IAuthorizable {
 }
 ```
 
-The contracts that are currently authorized to call the `ERC20Proxy` contract's `transferFrom` method are:
+The contracts that are currently authorized to call the `MultiAssetProxy` contract's `transferFrom` method are:
 
-- [Exchange 2.0](v2/v2-specification.md#exchange)
-- [Exchange 3.0](v3/v3-specification.md#exchange)
+- [Exchange 2.0](../v2/v2-specification.md#exchange)
+- [Exchange 3.0](../v3/v3-specification.md#exchange)
 
 ## Registering AssetProxy contracts
 
-The `MultiAssetProxy` can only dispatch transfers to other `AssetProxy` contracts that are registered within this contract. The `MultiAssetProxy` has the following interface for managing which `AssetProxy` contracts it is allowed to call. New registrations can only be initiated by the `owner` of this contract (currently, the [`AssetProxyOwner`](v3/v3-specification.md#assetproxyowner) contract).
+The `MultiAssetProxy` can only dispatch transfers to other `AssetProxy` contracts that are registered within this contract. The `MultiAssetProxy` has the following interface for managing which `AssetProxy` contracts it is allowed to call. New registrations can only be initiated by the `owner` of this contract (currently, the [`AssetProxyOwner`](../v3/v3-specification.md#assetproxyowner) contract).
 
 ```solidity
 contract IAssetProxyDispatcher {
@@ -138,7 +138,7 @@ contract IAssetProxyDispatcher {
 
 The `AssetProxy` contracts that are currently registered withing the `MultiAssetProxy` are:
 
-- [`ERC20Proxy`](asset-proxy/erc20-proxy.md)
-- [`ERC721Proxy`](asset-proxy/erc721-proxy.md)
-- [`ERC1155Proxy`](asset-proxy/erc1155-proxy.md)
-- [`StaticCallAssetProxy`](asset-proxy/static-call-proxy.md)
+- [`ERC20Proxy`](../asset-proxy/erc20-proxy.md)
+- [`ERC721Proxy`](../asset-proxy/erc721-proxy.md)
+- [`ERC1155Proxy`](../asset-proxy/erc1155-proxy.md)
+- [`StaticCallAssetProxy`](../asset-proxy/static-call-proxy.md)
