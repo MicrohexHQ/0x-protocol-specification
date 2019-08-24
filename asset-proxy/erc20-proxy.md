@@ -1,12 +1,12 @@
 # ERC20Proxy
 
-## Transferring ERC20 tokens
+## Transferring ERC-20 tokens
 
-The `ERC20Proxy` is responsible for transferring [ERC20 tokens](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md). Users must first approve this contract by calling the `approve` method on the token that will be exchanged. It is recommended that users approve a value of 2^256 -1. This minimizes the amount of times `approve` must be called, and also [increases efficiency](https://github.com/ethereum/EIPs/issues/717) for many ERC20 tokens.
+The `ERC20Proxy` is responsible for transferring [ERC-20 tokens](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md). Users must first approve this contract by calling the `approve` method on the token that will be exchanged. It is recommended that users approve a value of 2^256 -1. This minimizes the amount of times `approve` must be called, and also [increases efficiency](https://github.com/ethereum/EIPs/issues/717) for many ERC-20 tokens.
 
 ### transferFrom
 
-This contract may transfer an ERC20 token if its `transferFrom` method is called from an authorized address.
+This contract may transfer an ERC-20 token if its `transferFrom` method is called from an authorized address.
 
 ```solidity
 /// @dev Transfers assets. Either succeeds or throws.
@@ -23,6 +23,15 @@ function transferFrom(
     external;
 ```
 
+Calling `ERC20Proxy.transferFrom` will perfrom the following steps:
+
+1. Decode `erc20TokenAddress` from `assetData`
+1. Call `ERC20Token(erc20TokenAddress).transferFrom(from, to, amount)`
+1. Revert if the call was unsuccessful
+1. Revert if the call was successful but returned 0
+
+Note that this implementation will correctly handle edge cases where the ERC-20 token contract does not return a value or does not throw upon failure.
+
 The `transferFrom` method may revert with the following errors:
 
 | Error                                                                              | Condition                                                                                        |
@@ -32,10 +41,10 @@ The `transferFrom` method may revert with the following errors:
 
 ## Encoding assetData
 
-This contract expects ERC20 [`assetData`](../v3/v3-specification.md#assetdata) to be encoded using [ABIv2](http://solidity.readthedocs.io/en/latest/abi-spec.html) with the following function signature. The id of this contract is `0xf47261b0`, which can be calculated as the [4 byte function selector](https://solidity.readthedocs.io/en/latest/abi-spec.html#function-selector) of the same signature.
+This contract expects ERC-20 [`assetData`](../v3/v3-specification.md#assetdata) to be encoded using [ABIv2](http://solidity.readthedocs.io/en/latest/abi-spec.html) with the following function signature. The id of this contract is `0xf47261b0`, which can be calculated as the [4 byte function selector](https://solidity.readthedocs.io/en/latest/abi-spec.html#function-selector) of the same signature.
 
 ```solidity
-/// @dev Function signature for encoding ERC20 assetData.
+/// @dev Function signature for encoding ERC-20 assetData.
 /// @param tokenAddress Address of ERC20Token contract.
 function ERC20Token(address tokenAddress)
     external;

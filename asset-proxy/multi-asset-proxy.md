@@ -6,7 +6,9 @@ The `MultiAssetProxy` was first proposed in [ZEIP-23](https://github.com/0xProje
 
 ## Transferring multiple assets
 
-The `MultiAssetProxy` expects an `amounts` (`uint256` array) and a `nestedAssetData` (array of [`asseData`](../v3/v3-specification.md#assetdata) byte arrays) to be encoded within its own `assetData`. Each element of `amounts` corresponds to an element at the same index of `nestedAssetData`. The `MultiAssetProxy` will multiply each `amounts` element by the `amount` passed into `MultiAssetProxy.transferFrom` and then dispatch the corresponding element of `nestedAssetProxy` to the relevant [`AssetProxy`](v3/v3-specification.md#assetproxy) contract with the resulting `totalAmount`. This contract does not perform any `transferFrom` calls to assets directly and therefore does not require any additional user approvals.
+The `MultiAssetProxy` can transfer arbitrary bundles of assets in a single smart contract call. It expects a `values` (`uint256` array) and a `nestedAssetData` (array of [`assetData`](../v3/v3-specification.md#assetdata) byte arrays) to be encoded within its own `assetData`. Each element of `values` corresponds to an element at the same index of `nestedAssetData`. The `MultiAssetProxy` will multiply each `values` element by the `amount` passed into `MultiAssetProxy.transferFrom` and then dispatch the corresponding element of `nestedAssetProxy` to the relevant [`AssetProxy`](../v3/v3-specification.md#assetproxy) contract with the resulting `totalAmount`. This contract does not perform any `transferFrom` calls to assets directly and therefore does not require any additional user approvals.
+
+### transferFrom
 
 This contract may dispatch transfers to other [`AssetProxy`](../v3/v3-specification.md#assetproxy) contracts if its `transferFrom` method is called from an authorized address.
 
@@ -25,6 +27,16 @@ function transferFrom(
     external;
 ```
 
+Calling `MultiAssetProxy.transferFrom` will perform the following steps:
+
+1. Decode `values` and `nestedAssetData` from `assetData`
+1. For each element of `values`, given index `i`:
+   1. Multiply `values[i]` by `amount`, resulting in a `scaledValue`
+   1. Decode an `assetProxyId` from `nestedAssetData[i]`
+   1. Load an `assetProxyAddress` that corresponds to the `assetProxyId`
+   1. Call `AssetProxy(assetProxyAddress).transferFrom(nestedAssetData[i], from, to, scaledValue)`
+   1. Revert if the call was unsuccessful
+
 The `transferFrom` method may revert with the following errors:
 
 | Error                                                                                       | Condition                                                                                                 |
@@ -32,11 +44,11 @@ The `transferFrom` method may revert with the following errors:
 | [StandardError("SENDER_NOT_AUTHORIZED")](../v3/v3-specification.md#standard-error)          | `msg.sender` has not been authorized                                                                      |
 | [StandardError("INVALID_ASSET_DATA_LENGTH")](../v3/v3-specification.md#standard-error)      | The `assetData` is shorter than 68 bytes or is not a multiple of 32 (exluding the 4 byte id)              |
 | [StandardError("INVALID_ASSET_DATA_END")](../v3/v3-specification.md#standard-error)         | The offset to `assetData` points to outside the end of calldata                                           |
-| [StandardError("LENGTH_MISMATCH")](../v3/v3-specification.md#standard-error)                | The length of the `assetData.amounts` and `assetData.nestedAssetData` are not equal                       |
-| [StandardError("UINT256_OVERFLOW)](../v3/v3-specification.md#standard-error)                | The multiplication of an element of `assetData.amounts` and `amount` resulted in an overflow              |
-| [StandardError("LENGTH_GREATER_THAN_3_REQUIRED")](../v3/v3-specification.md#standard-error) | An element of `assetData.nestedAssetData` is shorter than 4 bytes                                         |
-| [StandardError("ASSET_PROXY_DOES_NOT_EXIST")](../v3/v3-specification.md#standard-error)     | No `AssetProxy` contract exists for the given id of an element of `assetData.nestedAssetData`             |
-| [StandardError(\*)](../v3/v3-specification.md#standard-error)                               | This contract will rethrow any revert data received from an unsuccessful call of an `AssetProxy` contract |
+| [StandardError("LENGTH_MISMATCH")](../v3/v3-specification.md#standard-error)                | The lengths of `values` and `nestedAssetData` are not equal                                               |
+| [StandardError("UINT256_OVERFLOW)](../v3/v3-specification.md#standard-error)                | The multiplication of an element of `values` and `amount` resulted in an overflow                         |
+| [StandardError("LENGTH_GREATER_THAN_3_REQUIRED")](../v3/v3-specification.md#standard-error) | An element of `nestedAssetData` is shorter than 4 bytes                                                   |
+| [StandardError("ASSET_PROXY_DOES_NOT_EXIST")](../v3/v3-specification.md#standard-error)     | No `AssetProxy` contract exists for the given `assetProxyId` of an element of `nestedAssetData`           |
+| \*                                                                                          | This contract will rethrow any revert data received from an unsuccessful call of an `AssetProxy` contract |
 
 ## Encoding assetData
 
@@ -44,11 +56,11 @@ This contract expects MultiAsset [`assetData`](../v3/v3-specification.md#assetda
 
 ```solidity
 /// @dev Function signature for encoding MultiAsset assetData.
-/// @param amounts Array of amounts that correspond to each asset to be transferred.
+/// @param values Array of values that correspond to each asset to be transferred.
 ///        Note that each value will be multiplied by the amount being filled in the order before transferring.
 /// @param nestedAssetData Array of assetData fields that will be be dispatched to their correspnding AssetProxy contract.
 function MultiAsset(
-    uint256[] calldata amounts,
+    uint256[] calldata values,
     bytes[] calldata nestedAssetData
 )
     external;
@@ -59,7 +71,7 @@ In Solidity, this data can be encoded with:
 ```solidity
 bytes memory data = abi.encodeWithSelector(
     0x94cfcdd7,
-    amounts,
+    values,
     nestedAssetData
 );
 ```
@@ -141,4 +153,4 @@ The `AssetProxy` contracts that are currently registered withing the `MultiAsset
 - [`ERC20Proxy`](../asset-proxy/erc20-proxy.md)
 - [`ERC721Proxy`](../asset-proxy/erc721-proxy.md)
 - [`ERC1155Proxy`](../asset-proxy/erc1155-proxy.md)
-- [`StaticCallAssetProxy`](../asset-proxy/static-call-proxy.md)
+- [`StaticCallProxy`](../asset-proxy/static-call-proxy.md)
