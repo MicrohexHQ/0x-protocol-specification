@@ -1419,6 +1419,7 @@ enum BatchMatchOrdersErrorCodes {
     INVALID_LENGTH_RIGHT_SIGNATURES
 }
 
+/// @param errorCode Error code that corresponds to reason for revert.
 function BatchMatchOrdersError(
     BatchMatchOrdersErrorCodes errorCode
 )
@@ -1439,6 +1440,10 @@ enum SignatureErrorCodes {
     INVALID_SIGNER
 }
 
+/// @param errorCode Error code that corresponds to reason for revert.
+/// @param hash Hash that has been signed.
+/// @param signerAddress Address of signer.
+/// @param signature Proof that hash has been signed by signerAddress.
 function SignatureError(
     SignatureErrorCodes errorCode,
     bytes32 hash,
@@ -1453,6 +1458,8 @@ function SignatureError(
 #### SignatureValidatorNotApprovedError
 
 ```solidity
+/// @param signerAddress Address of signer.
+/// @param validatorAddress Address of Validator contract that has not been approved by signerAddress.
 function SignatureValidatorNotApprovedError(
     address signerAddress,
     address validatorAddress
@@ -1465,6 +1472,11 @@ function SignatureValidatorNotApprovedError(
 #### SignatureValidatorError
 
 ```solidity
+/// @param hash Hash that has been signed.
+/// @param signerAddress Address of signer.
+/// @param validatorAddress Address of Validator contract.
+/// @param signature Proof that hash has been signed by signerAddress.
+/// @param errorData Error data provided by Validator contract upon reverting.
 function SignatureValidatorError(
     bytes32 hash,
     address signerAddress,
@@ -1480,6 +1492,10 @@ function SignatureValidatorError(
 #### SignatureWalletError
 
 ```solidity
+/// @param hash Hash that has been signed.
+/// @param signerAddress Address of signer.
+/// @param signature Proof that hash has been signed by signerAddress.
+/// @param errorData Error data provided by Wallet contract upon reverting.
 function SignatureWalletError(
     bytes32 hash,
     address signerAddress,
@@ -1504,6 +1520,8 @@ enum OrderStatus {
     CANCELLED
 }
 
+/// @param orderHash EIP712 typed data hash of order.
+/// @param orderStatus Status code of order that corresponds to reason for revert.
 function OrderStatusError(
     bytes32 orderHash,
     OrderStatus orderStatus
@@ -1516,6 +1534,8 @@ function OrderStatusError(
 #### InvalidSenderError
 
 ```solidity
+/// @param orderHash EIP712 typed data hash of order.
+/// @param senderAddress Address of msg.sender.
 function InvalidSenderError(
     bytes32 orderHash,
     address senderAddress
@@ -1528,6 +1548,8 @@ function InvalidSenderError(
 #### InvalidMakerError
 
 ```solidity
+/// @param orderHash EIP712 typed data hash of order.
+/// @param makerAddress Address of order's maker.
 function InvalidMakerError(
     bytes32 orderHash,
     address makerAddress
@@ -1547,6 +1569,8 @@ enum FillErrorCodes {
     INVALID_FILL_PRICE
 }
 
+/// @param errorCode Error code that corresponds to reason for revert.
+/// @param orderHash EIP712 typed data hash of order.
 function FillError(
     FillErrorCodes errorCode,
     bytes32 orderHash
@@ -1559,6 +1583,8 @@ function FillError(
 #### InvalidTakerError
 
 ```solidity
+/// @param orderHash EIP712 typed data hash of order.
+/// @param takerAddress Address of taker filling order.
 function InvalidTakerError(
     bytes32 orderHash,
     address takerAddress
@@ -1571,6 +1597,9 @@ function InvalidTakerError(
 #### OrderEpochError
 
 ```solidity
+/// @param makerAddress Address of maker for orders to cancel.
+/// @param orderSenderAddress Address of sender for orders to cancel.
+/// @param currentEpoch The latest epoch set for this specific makerAddress and senderAddress combination.
 function OrderEpochError(
     address makerAddress,
     address orderSenderAddress,
@@ -1584,8 +1613,11 @@ function OrderEpochError(
 #### AssetProxyExistsError
 
 ```solidity
+/// @param assetProxyId Id of AssetProxy being registered.
+/// @param assetProxyAddress Address of AssetProxy that already exists with given id.
 function AssetProxyExistsError(
-    address proxyAddress
+    bytes4 assetProxyId,
+    address assetProxyAddress
 )
     internal
     pure
@@ -1595,6 +1627,14 @@ function AssetProxyExistsError(
 #### AssetProxyDispatchError
 
 ```solidity
+enum AssetProxyDispatchErrorCodes {
+    INVALID_ASSET_DATA_LENGTH,
+    UNKNOWN_ASSET_PROXY
+}
+
+/// @param errorCode Error code that corresponds to reason for revert.
+/// @param orderHash EIP712 typed data hash of order.
+/// @param assetData Byte array containing asset metadata.
 function AssetProxyDispatchError(
     AssetProxyDispatchErrorCodes errorCode,
     bytes32 orderHash,
@@ -1608,6 +1648,9 @@ function AssetProxyDispatchError(
 #### AssetProxyTransferError
 
 ```solidity
+/// @param orderHash EIP712 typed data hash of order.
+/// @param assetData Byte array containing asset metadata.
+/// @param errorData Error data provided by AssetProxy contract upon reverting.
 function AssetProxyTransferError(
     bytes32 orderHash,
     bytes memory assetData,
@@ -1621,6 +1664,8 @@ function AssetProxyTransferError(
 #### NegativeSpreadError
 
 ```solidity
+/// @param leftOrderHash EIP712 typed data hash of left order.
+/// @param rightOrderHash EIP712 typed data hash of right order.
 function NegativeSpreadError(
     bytes32 leftOrderHash,
     bytes32 rightOrderHash
@@ -1638,6 +1683,8 @@ enum TransactionErrorCodes {
     EXPIRED
 }
 
+/// @param errorCode Error code that corresponds to reason for revert.
+/// @param transactionHash EIP712 typed data hash of 0x transaction.
 function TransactionError(
     TransactionErrorCodes errorCode,
     bytes32 transactionHash
@@ -1650,6 +1697,9 @@ function TransactionError(
 #### TransactionSignatureError
 
 ```solidity
+/// @param transactionHash EIP712 typed data hash of 0x transaction.
+/// @param signerAddress Address of signer.
+/// @param signature Proof that hash has been signed by signerAddress.
 function TransactionSignatureError(
     bytes32 transactionHash,
     address signerAddress,
@@ -1663,6 +1713,8 @@ function TransactionSignatureError(
 #### TransactionExecutionError
 
 ```solidity
+/// @param transactionHash EIP712 typed data hash of 0x transaction.
+/// @param errorData Error data provided by Exchange contract upon reverting.
 function TransactionExecutionError(
     bytes32 transactionHash,
     bytes memory errorData
@@ -1675,6 +1727,9 @@ function TransactionExecutionError(
 #### TransactionGasPriceError
 
 ```solidity
+/// @param transactionHash EIP712 typed data hash of 0x transaction.
+/// @param actualGasPrice Actual gas price of Ethereum transaction.
+/// @param requiredGasPrice Gas price specified in the 0x transaction.
 function TransactionGasPriceError(
     bytes32 transactionHash,
     uint256 actualGasPrice,
@@ -1688,6 +1743,8 @@ function TransactionGasPriceError(
 #### TransactionInvalidContextError
 
 ```solidity
+/// @param transactionHash EIP712 typed data hash of 0x transaction.
+/// @param currentContextAddress Context of Exchange function call that has already been set in storage.
 function TransactionInvalidContextError(
     bytes32 transactionHash,
     address currentContextAddress
@@ -1706,6 +1763,9 @@ enum IncompleteFillErrorCode {
     INCOMPLETE_FILL_ORDER
 }
 
+/// @param errorCode Error code that corresponds to reason for revert.
+/// @param expectedAssetFillAmount Expected amount to be filled.
+/// @param actualAssetFillAmount Actual amount that was filled.
 function IncompleteFillError(
     IncompleteFillErrorCode errorCode,
     uint256 expectedAssetFillAmount,
